@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phần Mềm In Nhãn A5</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CẤU HÌNH IN MỚI (PHƯƠNG PHÁP OVERLAY) --- */
+        @media print {
+            /* 1. Ẩn toàn bộ mọi thứ trong body */
+            body > * {
+                display: none !important;
+            }
+
+            /* 2. Chỉ hiện duy nhất lớp phủ in ấn (Print Overlay) */
+            #print-overlay {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 9999;
+                background: white;
+            }
+
+            /* 3. Đảm bảo màu sắc được in ra (Background Graphics) */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+            
+            /* 4. Định dạng trang A5 */
+            @page {
+                size: A5;
+                margin: 0;
+            }
+        }
+
+        /* Ẩn overlay trên màn hình bình thường */
+        #print-overlay {
+            display: none;
+        }
+
+        .times-font {
+            font-family: 'Times New Roman', Times, serif;
+        }
+        
+        /* Style cho ô ghi chú khi in để đảm bảo hiển thị đẹp */
+        .note-box-print {
+            border: 2px dashed #9ca3af !important; /* Màu xám đậm hơn cho rõ khi in đen trắng */
+            background-color: transparent !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 no-print-section">
+        
+        <!-- CỘT 1: FORM NHẬP LIỆU -->
+        <div class="flex flex-col gap-6">
+            <div class="bg-white p-6 rounded-lg shadow-md space-y-4">
+                <div class="border-b pb-4 mb-2">
+                    <h1 class="text-2xl font-bold text-blue-800 flex items-center gap-2">
+                        <i class="fas fa-box"></i>
+                        Phần Mềm In Nhãn A5
+                    </h1>
+                </div>
+
+                <!-- Form Người Gửi (Đã đồng bộ giao diện) -->
+                <div class="bg-slate-50 p-4 rounded-md border border-slate-200">
+                    <h2 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-user"></i> NGƯỜI GỬI (FROM)
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <input type="text" id="senderName" oninput="updatePreview()" class="w-full p-2 border rounded" placeholder="Họ tên">
+                        <input type="text" id="senderPhone" oninput="updatePreview()" class="w-full p-2 border rounded" placeholder="SĐT">
+                    </div>
+                    <textarea id="senderAddress" oninput="updatePreview()" rows="2" class="w-full p-2 border rounded" placeholder="Địa chỉ người gửi..."></textarea>
+                </div>
+
+                <!-- Form Người Nhận (Đã đồng bộ giao diện) -->
+                <div class="bg-slate-50 p-4 rounded-md border border-slate-200">
+                    <h2 class="font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fas fa-user"></i> NGƯỜI NHẬN (TO)
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <input type="text" id="receiverName" oninput="updatePreview()" class="w-full p-2 border rounded" placeholder="Họ tên người nhận">
+                        <input type="text" id="receiverPhone" oninput="updatePreview()" class="w-full p-2 border rounded" placeholder="SĐT người nhận">
+                    </div>
+                    <textarea id="receiverAddress" oninput="updatePreview()" rows="2" class="w-full p-2 border rounded" placeholder="Địa chỉ người nhận..."></textarea>
+                </div>
+
+                <!-- Form Ghi chú (Đã đồng bộ giao diện) -->
+                <div class="bg-slate-50 p-4 rounded-md border border-slate-200">
+                    <h2 class="font-bold text-slate-700 mb-2 flex items-center gap-2">
+                        <i class="fas fa-file-alt"></i> GHI CHÚ ĐƠN HÀNG
+                    </h2>
+                    <textarea id="note" oninput="updatePreview()" rows="2" class="w-full p-2 border border-slate-300 rounded focus:ring-slate-500 focus:border-slate-500" placeholder="Ví dụ: Cho xem hàng, Thu hộ 500k, Gọi trước khi giao..."></textarea>
+                </div>
+
+                <!-- Các nút chức năng -->
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button onclick="handleSavePDF()" class="bg-gray-600 hover:bg-gray-700 text-white py-3 px-2 rounded flex items-center justify-center gap-2 shadow transition-colors text-sm font-bold">
+                        <i class="fas fa-file-download"></i> LƯU PDF
+                    </button>
+                    
+                    <button onclick="handlePrintOnly()" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-2 rounded flex items-center justify-center gap-2 shadow transition-colors text-sm font-bold">
+                        <i class="fas fa-print"></i> IN NGAY
+                    </button>
+
+                    <button onclick="handlePrintAndSaveHistory()" class="col-span-2 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded flex items-center justify-center gap-2 shadow-lg transition-colors text-base font-bold uppercase">
+                        <i class="fas fa-save"></i> IN & LƯU LỊCH SỬ
+                    </button>
+                    
+                    <button onclick="handleReset()" class="col-span-2 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-sync"></i> Làm mới Form
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bảng Lịch sử -->
+            <div id="historySection" class="bg-white p-4 rounded-lg shadow-md hidden">
+                <h3 class="font-bold text-gray-700 mb-2">Lịch sử đơn hàng:</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                            <tr>
+                                <th class="px-2 py-2">TG</th>
+                                <th class="px-2 py-2">Tên</th>
+                                <th class="px-2 py-2">SĐT</th>
+                                <th class="px-2 py-2 text-right">Xử lý</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- CỘT 2: PREVIEW -->
+        <div class="flex flex-col items-center justify-start space-y-4">
+            <div class="text-gray-600 font-medium">Xem trước bản in:</div>
+            
+            <!-- Vùng thiết kế gốc (Dùng để hiển thị trên màn hình) -->
+            <div id="design-canvas" class="bg-white shadow-2xl border border-gray-300 w-full max-w-[148mm] aspect-[148/210] p-8 relative flex flex-col justify-between times-font" style="min-height: 550px;">
+                
+                <!-- Header: ĐÃ BỎ BORDER BOTTOM -->
+                <div class="pb-4 text-center">
+                    <h1 class="text-lg font-bold uppercase leading-tight text-blue-900">PHÂN HIỆU TRƯỜNG ĐẠI HỌC BÌNH DƯƠNG<br/>TẠI CÀ MAU</h1>
+                    <p class="text-sm mt-1 font-semibold">Số 3, Đường Lê Thị Riêng, Phường Tân Thành, Tỉnh Cà Mau</p>
+                    <p class="text-xs italic text-gray-500 mt-2">Phiếu Gửi Hàng / Shipping Label</p>
+                </div>
+
+                <!-- Nội dung chính -->
+                <div class="flex-grow flex flex-col gap-6 mt-4">
+                    
+                    <!-- Phần người gửi: Đồng bộ khung viền đen -->
+                    <div class="border-2 border-black p-4 rounded-lg">
+                        <div class="text-xs uppercase font-bold text-gray-500 mb-2 border-b pb-1">Người gửi / From:</div>
+                        <div class="text-lg font-bold" id="previewSenderName">...</div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <i class="fas fa-phone text-gray-600 text-xs"></i>
+                            <span class="font-semibold" id="previewSenderPhone">...</span>
+                        </div>
+                        <div class="flex items-start gap-2 mt-1">
+                            <i class="fas fa-map-marker-alt text-gray-600 text-xs mt-1"></i>
+                            <span id="previewSenderAddress">...</span>
+                        </div>
+                    </div>
+
+                    <!-- Mũi tên -->
+                    <div class="flex justify-center -my-3 z-10">
+                        <div class="bg-white px-2">
+                            <div class="w-0 h-0 border-l-[10px] border-l-transparent border-t-[15px] border-t-black border-r-[10px] border-r-transparent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Phần người nhận: Đồng bộ khung viền đen, bỏ nền xám -->
+                    <div class="border-2 border-black p-4 rounded-lg">
+                        <div class="text-xs uppercase font-bold text-gray-500 mb-2 border-b border-gray-400 pb-1">Người nhận / To:</div>
+                        <div class="text-xl font-bold uppercase" id="previewReceiverName">...</div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <i class="fas fa-phone text-sm"></i>
+                            <span class="text-lg font-bold" id="previewReceiverPhone">...</span>
+                        </div>
+                        <div class="flex items-start gap-2 mt-2">
+                            <i class="fas fa-map-marker-alt text-sm mt-1"></i>
+                            <span class="text-lg leading-snug" id="previewReceiverAddress">...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Phần Ghi chú -->
+                    <div class="mt-2 border-t border-dashed border-gray-400 pt-2">
+                        <p class="text-sm font-bold mb-1">Ghi chú / Note:</p>
+                        <div id="previewNoteContainer">
+                            <div class="space-y-3 pt-1">
+                                <div class="h-px bg-gray-300 w-full"></div>
+                                <div class="h-px bg-gray-300 w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer: ĐÃ BỎ BORDER TOP -->
+                <div class="mt-auto pt-4 text-center text-xs text-gray-500">
+                    <p>Hàng dễ vỡ xin nhẹ tay - Xin cảm ơn!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LỚP PHỦ DÙNG ĐỂ IN (Mặc định ẩn) -->
+    <div id="print-overlay">
+        <!-- Nội dung sẽ được copy vào đây khi bấm nút in -->
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        let history = [];
+
+        function updatePreview() {
+            // Lấy dữ liệu
+            const sName = document.getElementById('senderName').value;
+            const sPhone = document.getElementById('senderPhone').value;
+            const sAddress = document.getElementById('senderAddress').value;
+            const rName = document.getElementById('receiverName').value;
+            const rPhone = document.getElementById('receiverPhone').value;
+            const rAddress = document.getElementById('receiverAddress').value;
+            const note = document.getElementById('note').value;
+
+            // Cập nhật text
+            document.getElementById('previewSenderName').innerText = sName || '...';
+            document.getElementById('previewSenderPhone').innerText = sPhone || '...';
+            document.getElementById('previewSenderAddress').innerText = sAddress || '...';
+            document.getElementById('previewReceiverName').innerText = rName || '...';
+            document.getElementById('previewReceiverPhone').innerText = rPhone || '...';
+            document.getElementById('previewReceiverAddress').innerText = rAddress || '...';
+
+            // Cập nhật Note
+            const noteContainer = document.getElementById('previewNoteContainer');
+            if (note && note.trim() !== '') {
+                noteContainer.innerHTML = `<div class="text-base font-bold italic p-2 border-2 border-dashed border-gray-400 rounded min-h-[3rem] bg-yellow-50">${note}</div>`;
+            } else {
+                noteContainer.innerHTML = `<div class="space-y-3 pt-1"><div class="h-px bg-gray-300 w-full"></div><div class="h-px bg-gray-300 w-full"></div></div>`;
+            }
+        }
+
+        // --- CƠ CHẾ IN MỚI: SAO CHÉP & IN OVERLAY ---
+        function prepareAndPrint() {
+            const source = document.getElementById('design-canvas');
+            const target = document.getElementById('print-overlay');
+            
+            // 1. Sao chép nội dung từ vùng thiết kế sang vùng in
+            target.innerHTML = source.innerHTML;
+
+            // 2. Thêm style padding để căn chỉnh khi in
+            target.className = "p-8 flex flex-col justify-between times-font bg-white h-full"; // Tailwind classes
+            
+            // 3. Gọi lệnh in
+            window.print();
+
+            // 4. Dọn dẹp sau khi in (tùy chọn)
+            // setTimeout(() => { target.innerHTML = ''; }, 1000); 
+        }
+
+        function handlePrintOnly() {
+            prepareAndPrint();
+        }
+
+        function handleSavePDF() {
+            const rName = document.getElementById('receiverName').value || 'Hang';
+            const oldTitle = document.title;
+            document.title = `Phieu_Gui_${rName}`;
+            prepareAndPrint();
+            setTimeout(() => document.title = oldTitle, 1000);
+        }
+
+        function handlePrintAndSaveHistory() {
+            // Lưu lịch sử
+            const rName = document.getElementById('receiverName').value;
+            const newRecord = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString('vi-VN'),
+                receiverName: rName,
+                // Lưu các trường khác nếu cần
+                data: {
+                    sName: document.getElementById('senderName').value,
+                    sPhone: document.getElementById('senderPhone').value,
+                    sAddr: document.getElementById('senderAddress').value,
+                    rName: rName,
+                    rPhone: document.getElementById('receiverPhone').value,
+                    rAddr: document.getElementById('receiverAddress').value,
+                    note: document.getElementById('note').value
+                }
+            };
+            history.unshift(newRecord);
+            renderHistory();
+            
+            // In
+            prepareAndPrint();
+        }
+
+        function handleReset() {
+            if (confirm('Xóa hết dữ liệu nhập?')) {
+                document.querySelectorAll('input, textarea').forEach(e => e.value = '');
+                updatePreview();
+            }
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            document.getElementById('historySection').classList.remove('hidden');
+            tbody.innerHTML = history.map(item => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-2 py-2 text-xs text-gray-500">${item.timestamp.split(' ')[1]}</td>
+                    <td class="px-2 py-2 font-medium">${item.receiverName || '-'}</td>
+                    <td class="px-2 py-2">${item.data.rPhone || '-'}</td>
+                    <td class="px-2 py-2 text-right">
+                        <button onclick="loadHistory(${item.id})" class="text-blue-600 hover:underline text-xs mr-2">Nạp lại</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadHistory(id) {
+            const item = history.find(i => i.id === id);
+            if (item) {
+                document.getElementById('senderName').value = item.data.sName;
+                document.getElementById('senderPhone').value = item.data.sPhone;
+                document.getElementById('senderAddress').value = item.data.sAddr;
+                document.getElementById('receiverName').value = item.data.rName;
+                document.getElementById('receiverPhone').value = item.data.rPhone;
+                document.getElementById('receiverAddress').value = item.data.rAddr;
+                document.getElementById('note').value = item.data.note;
+                updatePreview();
+            }
+        }
+    </script>
+</body>
+</html>
