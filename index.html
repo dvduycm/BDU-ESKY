@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Tra Cứu Nghiệp Vụ Tư Vấn - Academic Portal</title>
+    <!-- Lucide Icons for decoration -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Font for better readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #002b5b;
+            --accent-gold: #b89146;
+            --light-bg: #f4f7f9;
+            --white: #ffffff;
+            --text-main: #1a1c1e;
+            --text-muted: #444c56;
+            --border-color: #d1d9e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.2s ease-in-out;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 50px 20px;
+            text-align: center;
+            border-bottom: 6px solid var(--accent-gold);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+        }
+
+        header p {
+            opacity: 0.85;
+            margin-top: 12px;
+            font-size: 1.15rem;
+            font-weight: 400;
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1200px;
+            margin: -40px auto 60px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            padding: 0 20px;
+        }
+
+        /* Search Bar Area */
+        .search-container {
+            grid-column: 1 / -1;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 16px 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            outline: none;
+            background: #fcfcfc;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(0, 43, 91, 0.1);
+            background: var(--white);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 16px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .sidebar h3 {
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 12px;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
+        .nav-item:hover {
+            color: var(--primary-blue);
+            background: #f0f4f8;
+            padding-left: 20px;
+        }
+
+        /* Content Area */
+        .content-area {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .category-block {
+            margin-bottom: 50px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary-blue);
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #eee;
+        }
+
+        /* FAQ Accordion */
+        .faq-card {
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--white);
+        }
+
+        .faq-question {
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 1.05rem;
+        }
+
+        .faq-question:hover {
+            background: #f8f9fa;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            background: #fcfcfc;
+            padding: 0 25px;
+            color: var(--text-muted);
+            font-size: 1rem;
+            border-top: 0 solid transparent;
+        }
+
+        .faq-card.active .faq-answer {
+            max-height: 1000px;
+            padding: 22px 25px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .faq-card.active .faq-question {
+            background: #f0f4f8;
+            color: var(--primary-blue);
+        }
+
+        .faq-card.active i {
+            transform: rotate(180deg);
+            color: var(--accent-gold);
+        }
+
+        /* Print Button */
+        .btn-print {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 16px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 43, 91, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            z-index: 100;
+        }
+
+        .btn-print:hover {
+            background: #003d82;
+            transform: translateY(-2px);
+        }
+
+        @media print {
+            .sidebar, .search-container, .btn-print, i { display: none !important; }
+            .main-container { display: block; margin: 0; padding: 0; }
+            .content-area { box-shadow: none; border: none; padding: 0; }
+            .faq-answer { max-height: none !important; padding: 15px 0 !important; display: block !important; }
+            .faq-card { border: none; border-bottom: 1px solid #eee; border-radius: 0; }
+            .faq-question { padding: 15px 0; font-size: 1.1rem; }
+            body { background: white; }
+        }
+
+        @media (max-width: 992px) {
+            .main-container { grid-template-columns: 1fr; margin-top: 20px; }
+            .sidebar { display: none; }
+            header h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Cổng Tra Cứu Nghiệp Vụ Tư Vấn</h1>
+    <p> Phân hiệu Trường Đại học Bình Dương tại Cà Mau </br> Trung tâm Ngoại ngữ và Tin học</p>
+</header>
+
+<div class="main-container">
+    <div class="search-container">
+        <i data-lucide="search" style="color: var(--accent-gold); width: 24px; height: 24px;"></i>
+        <input type="text" id="globalSearch" class="search-input" placeholder="Tìm kiếm nhanh nội dung, từ khóa hoặc câu hỏi nghiệp vụ...">
+    </div>
+
+    <aside class="sidebar">
+        <h3>Danh Mục Trình Đơn</h3>
+        <nav id="sidebarNav"></nav>
+    </aside>
+
+    <main class="content-area" id="faqContent">
+        <!-- Content loaded via JS -->
+    </main>
+</div>
+
+<button class="btn-print" onclick="window.print()">
+    <i data-lucide="printer"></i> Xuất File In
+</button>
+
+<script>
+    const faqData = [
+        {
+            id: "group1",
+            title: "I. CHIẾN LƯỢC VÀ QUY TRÌNH",
+            questions: [
+                { q: "Quy trình tư vấn hiện tại của Trung tâm đang diễn ra theo các bước cụ thể nào?", a: "Quy trình chuẩn hóa gồm 5 bước cốt lõi: </br> (1) Tiếp nhận dữ liệu khách hàng từ các nguồn. </br> (2) Liên hệ phân loại nhu cầu & đánh giá trình độ hiện tại. </br> (3) Tư vấn lộ trình cá nhân hóa & áp dụng chính sách ưu đãi. </br> (4) Chốt hồ sơ, thu phí và hoàn thiện thủ tục. </br> (5) Bàn giao hồ sơ cho bộ phận Đào tạo để xếp lớp." },
+                { q: "Kênh tư vấn nào hiện đang mang lại hiệu quả tuyển sinh cao nhất?", a: "Dựa trên báo cáo gần nhất, kênh tư vấn trực tiếp (Offline) và Facebook Messenger (Online) đang là hai kênh dẫn đầu với tỷ lệ chuyển đổi đạt mức 70% tổng lượng đăng ký." },
+                { q: "Trung tâm đã chuẩn hóa bộ tài liệu/kịch bản tư vấn chưa?", a: "Đã có bộ kịch bản chuẩn (Script) dành cho 3 mảng trọng điểm: IELTS (Cam kết đầu ra), Tin học UDCNTT (Chứng chỉ xét tốt nghiệp) và Tiếng Trung Giao tiếp." },
+                { q: "Thời gian cam kết phản hồi thắc mắc của học viên trên các kênh online?", a: "Cam kết phản hồi trong vòng tối đa 15 phút trong giờ hành chính và không quá 120 phút đối với các yêu cầu ngoài giờ." },
+                { q: "Cơ chế theo dõi và chăm sóc lại (re-marketing) học viên chưa đăng ký?", a: "Áp dụng quy tắc 3-7-15: Gọi lại chăm sóc sau 3 ngày tư vấn, gửi chương trình ưu đãi mới sau 7 ngày và cập nhật lịch khai giảng sau 15 ngày." },
+                { q: "Sự phối hợp giữa bộ phận tư vấn và đào tạo diễn ra như thế nào?", a: "Thực hiện báo cáo sĩ số thời gian thực qua hệ thống chung. Tổ chức họp nhanh đầu tuần để thống nhất về lịch khai giảng và yêu cầu đặc biệt của học viên." },
+                { q: "Đội ngũ tư vấn viên được tập huấn nghiệp vụ định kỳ như thế nào?", a: "Định kỳ hàng tháng sẽ có buổi Training kỹ năng giải quyết tình huống khó và cập nhật các quy định mới về chứng chỉ quốc tế/trong nước." }
+            ]
+        },
+        {
+            id: "group2",
+            title: "II. MẢNG NGOẠI NGỮ",
+            questions: [
+                { q: "Phương án tư vấn kiểm tra đầu vào cho học viên chưa xác định trình độ?", a: "Hướng dẫn học viên làm bài Test năng lực 4 kỹ năng (miễn phí). Kết quả sẽ được giảng viên chuyên môn chấm và tư vấn lộ trình ngay sau 24 giờ làm việc." },
+                { q: "Lộ trình tư vấn cụ thể dành cho đối tượng học viên 'mất gốc'?", a: "Tập trung vào khóa 'Lấy lại căn bản' (Pre-IELTS/Pre-VSTEP) trong 8-12 tuần để củng cố phát âm và ngữ pháp nền tảng trước khi vào giai đoạn luyện thi." },
+                { q: "Điểm khác biệt của các lớp Ngoại ngữ tại Trung tâm so với bên ngoài?", a: "Chương trình được thiết kế bám sát chuẩn đầu ra đại học, đội ngũ giảng viên có chứng chỉ sư phạm quốc tế, học phí được trợ giá tối đa cho sinh viên Phân hiệu." },
+                { q: "Cam kết của Trung tâm về tỷ lệ đạt chuẩn đầu ra (VSTEP/IELTS)?", a: "Hợp đồng đào tạo cam kết đầu ra rõ ràng. Học viên được hỗ trợ học lại miễn phí 100% nếu thực hiện đúng nội quy chuyên cần nhưng không đạt điểm mục tiêu." },
+                { q: "Chính sách hỗ trợ cho học viên đã học nhưng thi không đạt?", a: "Tặng gói ôn tập bổ trợ cá nhân (1 kèm 1 hoặc nhóm nhỏ) và hỗ trợ thủ tục đăng ký thi lại tại các đơn vị liên kết với mức phí ưu đãi." },
+                { q: "Căn cứ nào để tư vấn mở các lớp Ngoại ngữ không chuyên (Tiếng Trung)?", a: "Dựa trên khảo sát nhu cầu thị trường lao động tại Cà Mau và các tỉnh lân cận, cũng như xu hướng du học/hợp tác lao động hiện nay." }
+            ]
+        },
+        {
+            id: "group3",
+            title: "III. MẢNG TIN HỌC",
+            questions: [
+                { q: "Cách tư vấn làm nổi bật tầm quan trọng của chứng chỉ (UDCNTT)?", a: "Nhấn mạnh tính pháp lý của Thông tư 03/2014/TT-BTTTT - là điều kiện tiên quyết để xét tốt nghiệp đại học và là chứng chỉ không thể thiếu trong hồ sơ xin việc tại các cơ quan công quyền." },
+                { q: "Giải đáp thắc mắc về chênh lệch học phí so với khóa online giá rẻ?", a: "Phân tích giá trị của việc học trực tiếp: Cơ sở vật chất đầy đủ, giảng viên hướng dẫn cầm tay chỉ việc, tỷ lệ đậu cao và chứng chỉ có giá trị thực tế cao hơn các khóa học cưỡi ngựa xem hoa." },
+                { q: "Các điểm mạnh về cơ sở vật chất, phòng máy được nhấn mạnh ra sao?", a: "Phòng máy chuẩn Lab, máy tính cấu hình cao trang bị SSD, màn hình chống mỏi mắt và hệ thống mạng cáp quang chuyên dụng cho thực hành." },
+                { q: "Có hay không lộ trình tư vấn học tích hợp để rút ngắn thời gian?", a: "Trung tâm có gói 'Combo Skill Up' cho phép học viên học xen kẽ các module Tin học và Ngoại ngữ để hoàn thiện bộ kỹ năng tốt nghiệp chỉ trong một học kỳ." },
+                { q: "Phương án tư vấn lớp cấp tốc cho học viên năm cuối cần xét tốt nghiệp?", a: "Tổ chức các lớp học 'cuốn chiếu' vào cuối tuần với cường độ cao, tập trung giải đề thi thực tế để học viên kịp tiến độ xét tốt nghiệp đợt gần nhất." }
+            ]
+        },
+        {
+            id: "group4",
+            title: "IV. CHÍNH SÁCH VÀ QUYỀN LỢI",
+            questions: [
+                { q: "Chính sách ưu đãi học phí dành riêng cho học viên Phân hiệu?", a: "Giảm trực tiếp từ 15% đến 25% học phí khi đăng ký theo nhóm hoặc đăng ký trọn gói lộ trình. Luôn có mức phí đặc quyền cho sinh viên của trường." },
+                { q: "Quy trình tư vấn về việc quy đổi điểm/miễn học phần?", a: "Tư vấn viên cung cấp danh mục chứng chỉ tương ứng với các học phần được miễn. Hướng dẫn quy trình nộp chứng chỉ về phòng Đào tạo để hoàn tất thủ tục miễn giảm." },
+                { q: "Quy định bảo lưu, chuyển lớp, hoàn phí thông báo lúc nào?", a: "Toàn bộ quy định được tư vấn viên giải thích kỹ trước khi thu phí và được in rõ phía sau biên lai đăng ký để học viên lưu giữ." },
+                { q: "Sự linh hoạt trong khung giờ học được tư vấn như thế nào?", a: "Cung cấp khung giờ linh động: Sáng - Chiều - Tối và lớp Thứ 7/Chủ nhật. Học viên có thể chuyển ca học nếu có lý do chính đáng và báo trước." },
+                { q: "Kênh tiếp nhận phản hồi nóng (Hotline) về thái độ nhân viên?", a: "Công khai số Hotline góp ý trực tiếp của Ban Quản lý tại tất cả các phòng học và khu vực tiếp tân." },
+                { q: "Xử lý khi lớp không đủ số lượng học viên để mở lớp?", a: "Thông báo sớm cho học viên trước 7 ngày. Đề xuất phương án học nhóm nhỏ (có bù phí nhẹ) hoặc hoàn phí 100% trong vòng 48 giờ làm việc." }
+            ]
+        },
+        {
+            id: "group5",
+            title: "V. HIỆU QUẢ VÀ PHƯƠNG HƯỚNG",
+            questions: [
+                { q: "Tỷ lệ chuyển đổi từ tư vấn sang đăng ký hiện tại?", a: "Đang duy trì ổn định ở mức 48%. Mục tiêu trong quý tới là tối ưu hóa kịch bản để đạt ngưỡng 55%." },
+                { q: "Những khó khăn lớn nhất đang gặp phải trong công tác tư vấn?", a: "Cạnh tranh về giá từ các khóa học kém chất lượng và thói quen tự học của sinh viên chưa cao, dẫn đến trì hoãn việc lấy chứng chỉ sớm." },
+                { q: "Hình thức đo lường mức độ hài lòng về dịch vụ tư vấn?", a: "Triển khai khảo sát nhanh qua mã QR sau mỗi lượt tư vấn. Đánh giá KPI tư vấn viên dựa trên cả số lượng học viên và điểm hài lòng của khách hàng." },
+                { q: "Điểm mới trong kế hoạch tuyển sinh đợt cao điểm sắp tới?", a: "Tập trung vào chiến dịch 'Tốt nghiệp rạng rỡ' - tặng gói chụp ảnh kỷ yếu hoặc khóa học kỹ năng mềm cho học viên đăng ký combo Tin - Anh." },
+                { q: "Đề xuất cơ chế hỗ trợ từ Ban Lãnh đạo để tiếp cận sinh hoạt lớp?", a: "Phối hợp với Cố vấn học tập để có 10 phút giới thiệu về 'Lộ trình chuẩn đầu ra' trong các buổi sinh hoạt lớp định kỳ của sinh viên." },
+                { q: "Mục tiêu tăng trưởng số lượng học viên trong năm tới?", a: "Đặt mục tiêu tăng trưởng 25% tổng lượng học viên, đặc biệt đẩy mạnh mảng tiếng Trung và ôn thi IELTS cấp tốc." }
+            ]
+        }
+    ];
+
+    function initFAQ() {
+        const contentArea = document.getElementById('faqContent');
+        const sidebarNav = document.getElementById('sidebarNav');
+        let globalQuestionNumber = 1; // Counter for continuous numbering
+
+        faqData.forEach(section => {
+            // Render Sidebar
+            const navLink = document.createElement('a');
+            navLink.className = 'nav-item';
+            navLink.innerText = section.title.split('.')[1] || section.title;
+            navLink.onclick = () => {
+                document.getElementById(section.id).scrollIntoView({ behavior: 'smooth' });
+            };
+            sidebarNav.appendChild(navLink);
+
+            // Render Content
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'category-block';
+            sectionDiv.id = section.id;
+            
+            sectionDiv.innerHTML = `
+                <div class="category-header">
+                    <i data-lucide="book-open"></i> ${section.title}
+                </div>
+                ${section.questions.map(q => `
+                    <div class="faq-card">
+                        <div class="faq-question" onclick="toggleFaq(this)">
+                            <span>Câu ${globalQuestionNumber++}: ${q.q}</span>
+                            <i data-lucide="chevron-down" style="width: 20px;"></i>
+                        </div>
+                        <div class="faq-answer">
+                            ${q.a}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+            contentArea.appendChild(sectionDiv);
+        });
+        lucide.createIcons();
+    }
+
+    function toggleFaq(el) {
+        const card = el.parentElement;
+        const isActive = card.classList.contains('active');
+        
+        // Accordion behavior: Close others
+        document.querySelectorAll('.faq-card').forEach(c => c.classList.remove('active'));
+        
+        if (!isActive) {
+            card.classList.add('active');
+        }
+    }
+
+    // Modern Search Logic
+    document.getElementById('globalSearch').addEventListener('input', function(e) {
+        const term = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.faq-card');
+        
+        cards.forEach(card => {
+            const text = card.innerText.toLowerCase();
+            if(text.includes(term)) {
+                card.style.display = 'block';
+                if(term.length > 3) card.classList.add('active');
+            } else {
+                card.style.display = 'none';
+                card.classList.remove('active');
+            }
+        });
+        
+        document.querySelectorAll('.category-block').forEach(block => {
+            const hasVisible = Array.from(block.querySelectorAll('.faq-card')).some(c => c.style.display !== 'none');
+            block.style.display = hasVisible ? 'block' : 'none';
+        });
+    });
+
+    window.onload = initFAQ;
+</script>
+</body>
+</html>
